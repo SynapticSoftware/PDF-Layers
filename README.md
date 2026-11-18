@@ -1,12 +1,14 @@
 # PDF Layers
 
-PDF Layers is a Windows desktop app for previewing PDF layers and saving the visible pages as a flattened PDF.
+PDF Layers is a Windows desktop app for previewing PDF layers and exporting PDF or PNG files.
 
-1. Open a PDF.
-2. Check or uncheck layers and use **Previous** and **Next** to inspect the pages.
-3. Choose an export resolution, click **Save Flattened PDF**, and choose a new filename.
+1. Drop a PDF onto the window or choose **Open PDF**.
+2. Use **Previous** and **Next** to move between pages. The layer list shows the layers used on that page, including hidden layers. Check or uncheck them to update the preview. A layer shared across pages has one visibility setting.
+3. Choose **All pages** or **Current page**, choose a format, then click **Save As**.
 
-Export uses the same renderer as the preview. It renders the visible page content and annotations into page images and keeps the original displayed dimensions and page order. The output has no interactive layers, searchable text, form fields, or links. Very large pages may be rendered below the selected resolution.
+- **Layered PDF** keeps PDF content and layers with your chosen default visibility. Hidden layers can be turned back on in a PDF viewer.
+- **Flattened PDF** renders the visible content and annotations into page images. You can choose 150, 300, or 600 dpi. Very large pages may be rendered at a lower resolution. The output has no interactive layers, searchable text, form fields, or links.
+- **PNG (300 dpi)** saves the current page as a single image. Pixel dimensions are calculated from the displayed page width and height at 300 dpi, rounded to whole pixels.
 
 ## Windows executable
 

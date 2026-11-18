@@ -24,3 +24,7 @@ py -3.12 pdf_layers.py
 ```
 
 The app window and executable use `icon.png`. Both use the same stacked-layer artwork.
+
+## React web app
+
+The [React version](web/) runs in the browser and includes page-specific layer controls plus PDF and PNG exports. See the [web app README](web/README.md) for setup.

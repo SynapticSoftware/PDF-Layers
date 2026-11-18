@@ -163,11 +163,11 @@ class FlattenTests(unittest.TestCase):
 
         with patch("pdf_layers.messagebox.showerror") as show_error:
             self.assertEqual(root.tk.call(
-                "olednd::HandleDragEnter", str(canvas), ("CF_HDROP",), (COPY,), (),
+                "::tkdnd::olednd::HandleDragEnter", str(canvas), ("CF_HDROP",), (COPY,), (),
                 x, y, (15,),
             ), COPY)
             self.assertEqual(root.tk.call(
-                "olednd::HandleDrop", str(canvas), (), x, y, "CF_HDROP", (str(source),),
+                "::tkdnd::olednd::HandleDrop", str(canvas), (), x, y, "CF_HDROP", (str(source),),
             ), COPY)
             show_error.assert_not_called()
 

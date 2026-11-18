@@ -1,12 +1,14 @@
+import sys
 import tempfile
 import tkinter as tk
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import patch
 
 import pikepdf
 import pymupdf
-from tkinterdnd2 import COPY, REFUSE_DROP
+from tkinterdnd2 import COPY, REFUSE_DROP, TkinterDnD
 
 from pdf_layers import App, LayeredPdf
 
@@ -146,6 +148,31 @@ class FlattenTests(unittest.TestCase):
         self.assertEqual(opened, [file])
         app.export = iter(())
         self.assertEqual(App.drop_file(app, event), REFUSE_DROP)
+
+    @unittest.skipUnless(sys.platform == "win32", "Uses the Windows TkDND dispatcher")
+    def test_windows_file_drop_reaches_the_canvas(self):
+        source = self.source.with_name("ä drawing.PDF")
+        source.write_bytes(self.source.read_bytes())
+        root = TkinterDnD.Tk()
+        app = App(root)
+        self.addCleanup(app.close)
+        root.update()
+        canvas = app.canvas
+        x = canvas.winfo_rootx() + 20
+        y = canvas.winfo_rooty() + 20
+
+        with patch("pdf_layers.messagebox.showerror") as show_error:
+            self.assertEqual(root.tk.call(
+                "olednd::HandleDragEnter", str(canvas), ("CF_HDROP",), (COPY,), (),
+                x, y, (15,),
+            ), COPY)
+            self.assertEqual(root.tk.call(
+                "olednd::HandleDrop", str(canvas), (), x, y, "CF_HDROP", (str(source),),
+            ), COPY)
+            show_error.assert_not_called()
+
+        self.assertEqual(app.pdf.source, source.resolve())
+        self.assertEqual([box.cget("text") for box, _ in app.layer_controls], ["Red", "Blue"])
 
 
 if __name__ == "__main__":

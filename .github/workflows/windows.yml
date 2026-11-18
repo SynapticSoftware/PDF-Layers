@@ -23,6 +23,36 @@ jobs:
         env:
           PDF_LAYERS_PYTHON: python
         run: build.cmd
+      - name: Verify the packaged window opens
+        shell: pwsh
+        run: |
+          $launcher = Start-Process -FilePath (Resolve-Path 'dist/PDFLayers.exe') -PassThru
+          try {
+            $window = $null
+            $deadline = (Get-Date).AddSeconds(45)
+            while (-not $window -and (Get-Date) -lt $deadline) {
+              Start-Sleep -Milliseconds 500
+              $window = Get-Process -Name PDFLayers -ErrorAction SilentlyContinue |
+                Where-Object { $_.MainWindowTitle -eq 'PDF Layers' } |
+                Select-Object -First 1
+              $launcher.Refresh()
+              if ($launcher.HasExited -and -not $window) {
+                throw "PDFLayers.exe exited before opening its window (exit code $($launcher.ExitCode))."
+              }
+            }
+            if (-not $window) {
+              throw 'PDF Layers did not open its window within 45 seconds.'
+            }
+            if (-not $window.CloseMainWindow()) {
+              throw 'The PDF Layers window could not be closed.'
+            }
+            if (-not $launcher.WaitForExit(10000) -or $launcher.ExitCode -ne 0) {
+              throw 'PDFLayers.exe did not shut down cleanly.'
+            }
+          } finally {
+            Get-Process -Name PDFLayers -ErrorAction SilentlyContinue |
+              Stop-Process -Force -ErrorAction SilentlyContinue
+          }
       - uses: actions/upload-artifact@v4
         with:
           name: PDFLayers-Windows-x64
